@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import api from '../api/axios';
-import { Lock, Mail, User, ArrowRight, Sparkles } from 'lucide-react';
+import { Lock, Mail, User, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Signup() {
@@ -10,10 +10,13 @@ export default function Signup() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError('');
         try {
             const { data } = await api.post('/auth/signup', { name, email, password });
             localStorage.setItem('token', data.token);
@@ -21,11 +24,14 @@ export default function Signup() {
             window.location.href = '/dashboard';
         } catch (err) {
             setError(err.response?.data?.message || 'Signup failed');
+            setLoading(false);
         }
     };
 
     const googleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
+            setLoading(true);
+            setError('');
             try {
                 const { data } = await api.post('/auth/google', { token: tokenResponse.access_token });
                 localStorage.setItem('token', data.token);
@@ -33,7 +39,11 @@ export default function Signup() {
                 window.location.href = '/dashboard';
             } catch (err) {
                 setError('Google signup failed');
+                setLoading(false);
             }
+        },
+        onError: () => {
+            setLoading(false);
         },
     });
 
@@ -131,9 +141,11 @@ export default function Signup() {
 
                             <button
                                 type="submit"
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all hover:shadow-lg hover:shadow-indigo-500/30"
+                                disabled={loading}
+                                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all hover:shadow-lg hover:shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600"
                             >
-                                Create Account
+                                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                                {loading ? 'Creating Account...' : 'Create Account'}
                             </button>
                         </form>
 
@@ -148,8 +160,10 @@ export default function Signup() {
 
                         <button
                             onClick={() => googleLogin()}
-                            className="w-full flex items-center justify-center py-3 px-4 border border-gray-300 dark:border-gray-700 rounded-xl shadow-sm bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                            disabled={loading}
+                            className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-gray-300 dark:border-gray-700 rounded-xl shadow-sm bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
+                            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                             <svg className="h-5 w-5 mr-3" viewBox="0 0 24 24">
                                 <path
                                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
