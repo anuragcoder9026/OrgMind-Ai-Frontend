@@ -131,18 +131,21 @@ export default function Landing() {
                                         <div>
                                             <p className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">1. Install Package</p>
                                             <div className="bg-gray-800 rounded-lg p-4 font-mono text-sm text-gray-300 border border-gray-700">
-                                                <span className="text-pink-500">npm</span> install @anurag902684/rag-chatbot-widget
+                                                <span className="text-pink-500">npm</span> install orgmindai-chatbot-widget
                                             </div>
                                         </div>
 
                                         <div>
                                             <p className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">2. Use Component</p>
                                             <div className="bg-gray-800 rounded-lg p-4 font-mono text-sm text-gray-300 border border-gray-700 overflow-x-auto">
-                                                <span className="text-indigo-400">import</span> {`{ ChatBotWidget }`} <span className="text-indigo-400">from</span> <span className="text-green-400">'@anurag902684/rag-chatbot-widget'</span>;<br />
+                                                <span className="text-indigo-400">import</span> {`{ ChatBotWidget }`} <span className="text-indigo-400">from</span> <span className="text-green-400">'orgmindai-chatbot-widget'</span>;<br />
                                                 <br />
                                                 <span className="text-indigo-400">export default</span> <span className="text-yellow-300">function</span> <span className="text-blue-300">App</span>() {'{'}<br />
                                                 &nbsp;&nbsp;<span className="text-pink-500">return</span> (<br />
-                                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;<span className="text-yellow-300">ChatBotWidget</span> <span className="text-blue-300">apiKey</span>=<span className="text-green-400">"..."</span> /&gt;<br />
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;<span className="text-yellow-300">ChatBotWidget</span> <br />
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;apiKey={<span className="text-green-400">"YOUR_API_KEY_HERE"</span>} <br />
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title={<span className="text-green-400">"AI Support"</span>} <br />
+                                                &nbsp;&nbsp;&nbsp;&nbsp;/&gt;<br />
                                                 &nbsp;&nbsp;);<br />
                                                 {'}'}
                                             </div>
