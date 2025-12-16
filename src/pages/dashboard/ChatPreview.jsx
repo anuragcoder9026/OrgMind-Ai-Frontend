@@ -36,17 +36,11 @@ export default function ChatPreview() {
 
         try {
             // Use fetch for streaming support since axios doesn't handle streams easily in browser
-            const token = localStorage.getItem('token');
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    message: userMessage,
-                    history: messages.map(m => ({ role: m.role === 'assistant' ? 'system' : 'user', content: m.content })) // Simplified history mapping
-                })
+            const response = await api.post('/chat', {
+                message: userMessage,
+                history: messages.map(m => ({ role: m.role === 'assistant' ? 'system' : 'user', content: m.content }))
+            }, {
+                responseType: 'stream'
             });
 
             if (!response.ok) throw new Error('Network response was not ok');
