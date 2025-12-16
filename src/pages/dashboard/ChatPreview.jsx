@@ -35,12 +35,18 @@ export default function ChatPreview() {
         setLoading(true);
 
         try {
-            // Use fetch for streaming support since axios doesn't handle streams easily in browser
-            const response = await api.post('/chat', {
-                message: userMessage,
-                history: messages.map(m => ({ role: m.role === 'assistant' ? 'system' : 'user', content: m.content }))
-            }, {
-                responseType: 'stream'
+            // Use fetch for streaming support since axios doesn't handle streams in browsers
+            const token = localStorage.getItem('token');
+            const response = await fetch('https://orgmind-ai-backend.onrender.com/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    message: userMessage,
+                    history: messages.map(m => ({ role: m.role === 'assistant' ? 'system' : 'user', content: m.content }))
+                })
             });
 
             if (!response.ok) throw new Error('Network response was not ok');
