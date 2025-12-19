@@ -7,7 +7,7 @@ import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { Send, Bot, User, Copy, Check } from 'lucide-react';
+import { Send, Bot, User, Copy, Check, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ChatPreview() {
@@ -17,6 +17,7 @@ export default function ChatPreview() {
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [copiedIndex, setCopiedIndex] = useState(null);
+    const [expandedSources, setExpandedSources] = useState({});
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -37,7 +38,7 @@ export default function ChatPreview() {
         try {
             // Use fetch for streaming support since axios doesn't handle streams in browsers
             const token = localStorage.getItem('token');
-            const response = await fetch('https://orgmind-ai-backend.onrender.com/api/chat', {
+            const response = await fetch('http://localhost:5000/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -54,8 +55,9 @@ export default function ChatPreview() {
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let assistantMessage = '';
+            let messageSources = [];
 
-            setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+            setMessages(prev => [...prev, { role: 'assistant', content: '', sources: [] }]);
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -88,6 +90,15 @@ export default function ChatPreview() {
                                     const newMessages = [...prev];
                                     newMessages[newMessages.length - 1].content = assistantMessage;
 
+                                    return newMessages;
+                                });
+                            } else if (parsed.sources) {
+                                // Store sources to add to the message
+                                console.log('📚 Received sources:', parsed.sources);
+                                messageSources = parsed.sources;
+                                setMessages(prev => {
+                                    const newMessages = [...prev];
+                                    newMessages[newMessages.length - 1].sources = messageSources;
                                     return newMessages;
                                 });
                             }
@@ -307,6 +318,69 @@ export default function ChatPreview() {
                                 >
                                     {msg.content}
                                 </ReactMarkdown>
+
+                                {/* Sources Section */}
+                                {msg.role === 'assistant' && msg.sources && msg.sources.length > 0 && (
+                                    <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                                        <button
+                                            onClick={() => setExpandedSources(prev => ({
+                                                ...prev,
+                                                [index]: !prev[index]
+                                            }))}
+                                            className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                                        >
+                                            <FileText className="w-3.5 h-3.5" />
+                                            <span>{msg.sources.length} Source{msg.sources.length > 1 ? 's' : ''} Used</span>
+                                            {expandedSources[index] ? (
+                                                <ChevronUp className="w-3.5 h-3.5" />
+                                            ) : (
+                                                <ChevronDown className="w-3.5 h-3.5" />
+                                            )}
+                                        </button>
+
+                                        {expandedSources[index] && (
+                                            <div className="mt-2 space-y-2">
+                                                {msg.sources.map((source, srcIndex) => (
+                                                    <div
+                                                        key={srcIndex}
+                                                        className="p-2.5 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600"
+                                                    >
+                                                        <div className="flex items-start gap-2">
+                                                            <FileText className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 mt-0.5 flex-shrink-0" />
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="flex items-center gap-2 mb-1">
+                                                                    <span className="text-xs font-medium text-gray-800 dark:text-gray-200 truncate">
+                                                                        {source.filename}
+                                                                    </span>
+                                                                    {source.maxScore && (
+                                                                        <span className="text-xs px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300">
+                                                                            {(source.maxScore * 100).toFixed(0)}%
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                {source.url && (
+                                                                    <a
+                                                                        href={source.url}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline truncate block"
+                                                                    >
+                                                                        {source.type === 'file' ? '📎 View File' : '🔗 Visit Page'}
+                                                                    </a>
+                                                                )}
+                                                                {source.chunkCount && (
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                                        {source.chunkCount} chunk{source.chunkCount > 1 ? 's' : ''} used
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
                                 {/* Copy Button */}
                                 <div className="flex justify-end mt-2">
