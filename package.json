@@ -17,7 +17,7 @@
         "framer-motion": "^12.23.24",
         "katex": "^0.16.27",
         "lucide-react": "^0.292.0",
-        "orgmindai-chatbot-widget": "^1.0.1",
+        "orgmindai-chatbot-widget": "^1.0.3",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-dropzone": "^14.2.3",
