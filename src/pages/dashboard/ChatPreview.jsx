@@ -9,7 +9,6 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Send, Bot, User, Copy, Check, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import toast from 'react-hot-toast';
-
 export default function ChatPreview() {
     const [messages, setMessages] = useState([
         { role: 'assistant', content: 'Hello! How can I help you today?' }
@@ -38,7 +37,8 @@ export default function ChatPreview() {
         try {
             // Use fetch for streaming support since axios doesn't handle streams in browsers
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/chat', {
+            const baseUrl = api.defaults.baseURL;
+            const response = await fetch(`${baseUrl}/api/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
