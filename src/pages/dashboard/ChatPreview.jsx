@@ -38,7 +38,7 @@ export default function ChatPreview() {
             // Use fetch for streaming support since axios doesn't handle streams in browsers
             const token = localStorage.getItem('token');
             const baseUrl = api.defaults.baseURL;
-            const response = await fetch(`${baseUrl}/api/chat`, {
+            const response = await fetch(`${baseUrl}/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
